@@ -1,0 +1,13 @@
+Package: ban430live
+Title: Live page for the BAN430 mandatory assignment
+Version: 0.0.1
+Description: Dependencies of the scheduled job that builds the live page.
+License: MIT
+Imports:
+    fpp3,
+    jsonlite,
+    patchwork,
+    ragg,
+    ban430data
+Remotes:
+    holleland/ban430data

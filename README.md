@@ -1,7 +1,9 @@
-# BAN430 live page
+# BAN430 live page and scoreboard
 
-A self-updating page for the mandatory electricity assignment: NO5 prices, the seasonal naive
-benchmark forecast and the distribution of the October average. A GitHub Actions workflow
+A self-updating page for the mandatory electricity assignment. It has two tabs: the **scoreboard**
+(the groups' submissions scored on the days with a known price, with a toggle between each group's
+official last submission and its best submission) and the **price tracker** (NO5 prices, the seasonal
+naive benchmark forecast and the distribution of the October average). A GitHub Actions workflow
 runs `build_site.R` every 15 minutes around 13:00 (when tomorrow's prices are published) and
 hourly otherwise, and publishes `site/` on GitHub Pages. The page itself reloads `data.json`
 every two minutes, so open tabs update without a refresh.
@@ -12,6 +14,9 @@ every two minutes, so open tabs update without a refresh.
 |---|---|
 | `build_site.R` | Fetches the prices, fits the benchmark and writes `site/data.json`, `site/status.png` and `site/index.html` |
 | `status_plot.R` | The data and figure code, shared with the lecture slides (a copy of `../status_plot.R`) |
+| `board.R` | Scores every submission on the days with a known price and makes the benchmark forecasts (naive, seasonal naive, 7-day mean) |
+| `submissions_clean.csv` | The submissions (group name, time, forecast; no member names). Made by `../prepare_submissions.R` from the downloaded sheet. The submissions are locked, so it does not change |
+| `display_names.csv` | How each group is named on the page. Edit it to rename or anonymise a group, then rebuild |
 | `src/index.html` | The page (charts with Apache ECharts, loaded from a CDN) |
 | `.github/workflows/update.yml` | The schedule and the deployment |
 | `DESCRIPTION` | The R packages the workflow installs |
@@ -43,7 +48,10 @@ python3 -m http.server 8765 --directory site     # open http://localhost:8765
 
 * Scheduled runs can be a few minutes late. Use *Run workflow* to update the page right away.
 * GitHub switches scheduled workflows off after 60 days without activity in a public repository.
-* The page shows only the number of groups that have submitted (read from the Apps Script
-  endpoint), never names, members or forecasts.
-* After 31 October the page shows the final average. The scoreboard section is a placeholder
-  until the scoring is added.
+* The page shows the group names (as chosen in the submission), never the members. Change
+  `display_names.csv` to rename a group.
+* While the month runs, the ranking is provisional: the sum of the ranks in daily RMSE and daily CRPS
+  on the days known so far. When all prices of the month are known (31 October), the page adds the absolute
+  error and CRPS of the October average, and the ranking uses all four categories of the assignment.
+* The benchmarks are made with the data of the deadline day (22 October), with 2000 bootstrapped paths.
+* To use another month or deadline, change the defaults in `board.R` and `build_site.R`.

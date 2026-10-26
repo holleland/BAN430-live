@@ -6,6 +6,7 @@ License: MIT
 Imports:
     fpp3,
     jsonlite,
+    readr,
     patchwork,
     ragg,
     ban430data

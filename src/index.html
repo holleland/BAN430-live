@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>BAN430 · Electricity price tracker</title>
-<meta name="description" content="Live tracker for the BAN430 mandatory assignment: NO5 electricity prices, the benchmark forecast and the distribution of the October average.">
-<meta property="og:title" content="BAN430 · Electricity price tracker">
-<meta property="og:description" content="Live NO5 prices, the benchmark forecast and the projected October average.">
+<title>BAN430 · Electricity forecasting scoreboard</title>
+<meta name="description" content="BAN430 mandatory assignment: the scoreboard of the forecasting competition, and live NO5 electricity prices.">
+<meta property="og:title" content="BAN430 · Electricity forecasting scoreboard">
+<meta property="og:description" content="Who forecasts the electricity price best? Live scoreboard and NO5 prices.">
 <meta property="og:image" content="status.png">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%230b1220'/><path d='M36 6 16 36h14l-4 22 22-32H34z' fill='%23ff8a3d'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -95,6 +95,58 @@
   .score p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.55; }
   .score .tag { display: inline-block; margin-top: 8px; padding: 4px 10px; border-radius: 999px; font-size: 12px; font-weight: 600; background: rgba(199,146,255,.14); color: var(--proj); border: 1px solid rgba(199,146,255,.35); }
 
+
+  /* tabs */
+  .tabs { display: inline-flex; gap: 4px; padding: 4px; border-radius: 999px; background: var(--card); border: 1px solid var(--card-border); margin-bottom: 18px; }
+  .tab { appearance: none; border: 0; background: transparent; color: var(--muted); font: inherit; font-weight: 600; font-size: 14px; padding: 8px 18px; border-radius: 999px; cursor: pointer; }
+  .tab.on { background: linear-gradient(135deg, rgba(255,138,61,.9), rgba(255,107,129,.85)); color: #fff; box-shadow: 0 4px 16px rgba(255,138,61,.35); }
+  .pane { display: none; } .pane.on { display: block; }
+
+  /* scoreboard */
+  .seg { display: inline-flex; border: 1px solid var(--card-border); border-radius: 12px; overflow: hidden; background: rgba(255,255,255,.03); }
+  .seg button { appearance: none; border: 0; background: transparent; color: var(--muted); font: inherit; font-size: 13px; font-weight: 600; padding: 8px 14px; cursor: pointer; }
+  .seg button.on { background: rgba(74,168,255,.2); color: #fff; }
+  .toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 18px; margin-bottom: 10px; }
+  .hint { color: var(--muted); font-size: 12.5px; line-height: 1.5; max-width: 760px; }
+  .tablewrap { overflow-x: auto; margin: 0 -6px; padding: 0 6px; }
+  table.board { width: 100%; border-collapse: separate; border-spacing: 0 4px; font-size: 13.5px; min-width: 860px; }
+  table.board th { text-align: right; color: var(--faint); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; font-weight: 600; padding: 4px 10px; white-space: nowrap; user-select: none; }
+  table.board th.l, table.board td.l { text-align: left; }
+  table.board th.sortable { cursor: pointer; } table.board th.sortable:hover { color: var(--text); } table.board th.sorted { color: var(--after); }
+  table.board td { padding: 9px 10px; background: rgba(255,255,255,.035); text-align: right; white-space: nowrap; }
+  table.board td:first-child { border-radius: 10px 0 0 10px; } table.board td:last-child { border-radius: 0 10px 10px 0; }
+  table.board tr.row { cursor: pointer; transition: transform .15s; }
+  table.board tr.row:hover td { background: rgba(255,255,255,.075); }
+  table.board tr.sel td { background: rgba(74,168,255,.16); }
+  table.board tr.bench td { background: rgba(255,255,255,.015); color: var(--muted); font-style: italic; }
+  .rank { font-weight: 800; font-size: 15px; width: 36px; text-align: center !important; }
+  .rank.r1 { color: #ffd166; } .rank.r2 { color: #cfd8e6; } .rank.r3 { color: #e0a070; }
+  .gname { font-weight: 700; display: flex; align-items: center; gap: 9px; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+  .badge { font-size: 10.5px; font-weight: 600; padding: 2px 7px; border-radius: 999px; border: 1px solid var(--card-border); color: var(--muted); letter-spacing: .02em; font-style: normal; }
+  .badge.best { color: var(--avg); border-color: rgba(46,230,166,.45); }
+  .badge.bm { color: var(--faint); }
+  .cbar { display: inline-flex; align-items: center; gap: 8px; justify-content: flex-end; }
+  .cbar i { display: inline-block; height: 7px; border-radius: 4px; background: linear-gradient(90deg, #4aa8ff, #c792ff); opacity: .85; }
+  .pos { color: var(--after); } .neg { color: var(--band); }
+  .small { font-size: 12px; color: var(--muted); }
+  .detail-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 14px; }
+  table.days { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.days th { text-align: right; color: var(--faint); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; font-weight: 600; padding: 4px 8px; }
+  table.days th:first-child, table.days td:first-child { text-align: left; }
+  table.days td { text-align: right; padding: 6px 8px; border-top: 1px solid rgba(255,255,255,.06); }
+  table.days tr.unk td { color: var(--faint); }
+  .in { color: var(--avg); } .out { color: var(--bad); }
+  .subs { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 10px; }
+  .subs button { appearance: none; font: inherit; font-size: 12px; color: var(--muted); background: rgba(255,255,255,.04); border: 1px solid var(--card-border); border-radius: 999px; padding: 4px 10px; cursor: pointer; }
+  .subs button.on { color: #fff; background: rgba(74,168,255,.22); border-color: rgba(74,168,255,.6); }
+  .subs button.off { opacity: .55; }
+  #chart-spag { width: 100%; height: 400px; } #chart-detail { width: 100%; height: 330px; } #chart-curve { width: 100%; height: 360px; }
+  #chart-heat, #chart-month { width: 100%; }
+  .explain { color: var(--muted); font-size: 13.5px; line-height: 1.6; }
+  .explain b { color: var(--text); }
+  @media (max-width: 980px) { .detail-grid { grid-template-columns: 1fr; } }
+
   footer { margin-top: 22px; color: var(--faint); font-size: 12.5px; line-height: 1.65; }
   footer a { color: var(--muted); }
   .toast { position: fixed; right: 18px; bottom: 18px; padding: 12px 16px; border-radius: 14px; background: rgba(46,230,166,.15); border: 1px solid rgba(46,230,166,.5); color: #d9fff0; font-size: 14px; font-weight: 600; transform: translateY(80px); opacity: 0; transition: .4s; backdrop-filter: blur(8px); }
@@ -109,18 +161,76 @@
   <header>
     <div>
       <div class="eyebrow">BAN430 · Mandatory assignment</div>
-      <h1><span class="bolt">⚡</span> Electricity price tracker</h1>
+      <h1><span class="bolt">⚡</span> Forecasting the electricity price</h1>
       <div class="sub" id="subtitle">NO5 · Western Norway · daily mean price, NOK/kWh excluding VAT</div>
     </div>
     <div class="status"><span class="pulse" id="pulse"></span><span id="updated">Loading…</span></div>
   </header>
 
   <div class="chips">
-    <div class="chip"><span class="ico">⏳</span><span>Submission deadline in</span><b id="c-deadline">–</b></div>
+    <div class="chip"><span class="ico">🎯</span><span>Scored days known</span><b id="c-known">–</b></div>
     <div class="chip" id="chip-next"><span class="ico">📡</span><span id="next-label">Tomorrow's prices in</span><b id="c-next">–</b></div>
-    <div class="chip"><span class="ico">👥</span><span>Groups submitted</span><b id="c-groups">–</b></div>
+    <div class="chip"><span class="ico">👥</span><span>Groups in the race</span><b id="c-groups">–</b></div>
   </div>
 
+  <nav class="tabs"><button class="tab on" data-tab="score">🏁 Scoreboard</button><button class="tab" data-tab="prices">📈 Prices and benchmark</button></nav>
+
+  <div class="pane on" id="pane-score">
+    <section class="grid kpis">
+      <div class="card kpi k-latest"><span class="bar"></span><h2>Scored days known</h2><div class="val"><span id="b1">–</span><span class="unit">of 9</span></div><div class="note" id="b1n"></div></div>
+      <div class="card kpi k-avg"><span class="bar"></span><h2 id="b2-title">Leader</h2><div class="val" style="font-size:clamp(22px,2.6vw,30px)"><span id="b2">–</span></div><div class="note" id="b2n"></div></div>
+      <div class="card kpi k-proj"><span class="bar"></span><h2>Beating the benchmarks</h2><div class="val"><span id="b3">–</span><span class="unit" id="b3u"></span></div><div class="note" id="b3n"></div></div>
+      <div class="card kpi k-range"><span class="bar"></span><h2>October average</h2><div class="val"><span id="b4">–</span><span class="unit">NOK/kWh</span></div><div class="note" id="b4n"></div></div>
+    </section>
+
+    <section class="card" style="margin-bottom:14px">
+      <div class="toolbar">
+        <h2 style="margin:0">Leaderboard <span class="small" id="lb-status" style="text-transform:none;letter-spacing:0;font-weight:500">· provisional, daily prices only</span></h2>
+        <div class="seg" id="seg"><button data-m="official" class="on">Last submission (official)</button><button data-m="best">Best submission of each group</button></div>
+      </div>
+      <div class="hint" id="lb-hint"></div>
+      <div class="tablewrap"><table class="board" id="board"></table></div>
+    </section>
+
+    <section class="card" style="margin-bottom:14px">
+      <h2 id="detail-title">Group detail</h2>
+      <div class="detail-grid">
+        <div><div class="subs" id="detail-subs"></div><div id="chart-detail"></div></div>
+        <div><table class="days" id="detail-days"></table><div class="small" id="detail-note" style="margin-top:8px"></div></div>
+      </div>
+    </section>
+
+    <section class="card main">
+      <h2>Everyone against reality</h2>
+      <div id="chart-spag"></div>
+      <div class="legend"><span><i style="background:var(--after)"></i>Actual price</span><span><i style="background:#8b9cbc"></i>Group forecasts (point forecasts, one line per group)</span><span><i class="dash" style="border-color:#8b9cbc"></i>Benchmarks</span></div>
+    </section>
+
+    <section class="grid row2">
+      <div class="card"><h2>Day by day: CRPS per forecast day (darker is better)</h2><div id="chart-heat"></div></div>
+      <div class="card"><h2>Does later information help? Score by time of submission</h2><div id="chart-curve"></div>
+        <div class="small">Each line is a group; the large dot is the official (last) submission. Dashed lines: the benchmarks.</div></div>
+    </section>
+
+    <section class="card main">
+      <h2>The October average: forecast and where it stands</h2>
+      <div id="chart-month"></div>
+      <div class="legend"><span><i style="background:#8b9cbc"></i>Submitted point forecast and 90% interval</span><span><i style="background:var(--after)"></i>Projection now: the known days plus the group's own forecasts for the days to come</span><span><i style="background:var(--avg)"></i>Average so far</span><span><i class="dash" style="border-color:var(--proj)"></i>Benchmark projection</span></div>
+      <div class="small" style="margin-top:8px">The October average is scored on 31 October (absolute error of the point forecast, and CRPS). Until then this is a projection, not a score.</div>
+    </section>
+
+    <section class="card" style="margin-top:14px">
+      <h2>How the scoring works</h2>
+      <div class="explain">
+        <p>Each group submitted a point forecast and 19 quantiles (5%, 10%, …, 95%) for the nine days <b>23–31 October</b> and for the <b>October average</b>. Lower scores are better.</p>
+        <p><b>CRPS</b> is the average over the 19 quantiles of the quantile score (the sum of the quantile scores divided by 20): it rewards forecasts that are both close to the outcome and honest about their uncertainty. <b>RMSE</b> is the root mean squared error of the point forecasts. <b>Bias</b> is the average forecast error (positive: the forecasts were too high). <b>90% hits</b> is how many outcomes fell inside the group's 5%–95% interval (about 9 in 10 is the ideal).</p>
+        <p>The official rule is that the <b>last submission before the deadline</b> (22 October, 12:00) counts, and the winner is the group with the best combined rank in four categories: daily RMSE, daily CRPS, and the absolute error and CRPS of the October average. This page ranks on the first two while the month is running, using the days known so far. <b>Best submission of each group</b> picks, in hindsight, the submission with the lowest CRPS so far. It is for fun and learning (it shows what the earlier forecasts were worth), and it is not the competition result.</p>
+        <p>The benchmarks (naive, seasonal naive and 7-day mean) are made on the deadline day with the same data, so you can see who beat them.</p>
+      </div>
+    </section>
+  </div>
+
+  <div class="pane" id="pane-prices">
   <section class="grid kpis">
     <div class="card kpi k-latest"><span class="bar"></span><h2 id="k1-title">Latest price</h2><div class="val"><span id="k1">–</span><span class="unit">NOK/kWh</span></div><div class="note" id="k1n"></div></div>
     <div class="card kpi k-avg"><span class="bar"></span><h2 id="k2-title">October average so far</h2><div class="val"><span id="k2">–</span><span class="unit">NOK/kWh</span></div><div class="note" id="k2n"></div></div>
@@ -151,20 +261,11 @@
     </div>
   </section>
 
-  <section class="card">
-    <h2>Scoreboard</h2>
-    <div class="score">
-      <div class="big" id="score-big">🏁</div>
-      <div>
-        <p id="score-text">The scoreboard opens when the first scored day (23 October) is known.</p>
-        <span class="tag" id="score-tag">Opens after the deadline</span>
-      </div>
-    </div>
-  </section>
+  </div>
 
   <footer>
-    <div><b>About the numbers.</b> The forecast is the <i>seasonal naive benchmark</i> from the assignment page: each day is predicted to cost what the same weekday cost last week, with uncertainty from 1000 simulated paths that resample the model's past errors. The projected October average is the average of the known days plus the simulated rest of the month. Your task is to beat it.</div>
-    <div>Prices: NO5 hourly spot prices excluding VAT, averaged per day, from <a href="https://www.hvakosterstrommen.no/" target="_blank" rel="noopener">hvakosterstrommen.no</a>. Tomorrow's prices appear at about 13:00.</div>
+    <div><b>About the numbers.</b> Scores are computed on the daily NO5 prices (NOK/kWh, excluding VAT) from <a href="https://www.hvakosterstrommen.no/" target="_blank" rel="noopener">hvakosterstrommen.no</a>, which publishes tomorrow's prices at about 13:00. The page updates itself. The benchmark forecasts are made with the data available on the deadline day, with uncertainty from 2000 simulated paths that resample each model's past errors.</div>
+    <div>The page shows the group names that the groups chose for their submission, not the names of the members.</div>
     <div><a href="https://holleland.github.io/BAN430/Mandatory_assignment.html" target="_blank" rel="noopener">Assignment description</a> · BAN430 Forecasting, NHH</div>
   </footer>
 </div>
@@ -172,12 +273,11 @@
 
 <script>
 const DATA_URL = 'data.json';
-const SUBMIT_URL = 'https://script.google.com/macros/s/AKfycbyVw40ga9QPijZ45TS8mvNdQR_Tu1hPB4UFZch12_Nztz8p4yxyIuDxSD2EgjBhk_S2wQ/exec';
 const REFRESH_MS = 120000;
 const C = { before: '#9db2d6', after: '#ff8a3d', avg: '#2ee6a6', proj: '#c792ff', band: '#4aa8ff', grid: 'rgba(255,255,255,.07)', text: '#8b9cbc' };
 const $ = id => document.getElementById(id);
 const fmt = (x, d = 2) => (x == null || isNaN(x)) ? '–' : Number(x).toFixed(d);
-let data = null, chartMain, chartHist, lastDayShown = null, groups = null;
+let data = null, chartMain, chartHist, lastDayShown = null;
 
 /* ---------- time helpers (Oslo time) ---------- */
 const osloParts = (date = new Date()) => {
@@ -321,28 +421,11 @@ function renderKpis() {
   $('k4b').textContent = data.highest ? fmt(data.highest.p) : '–'; $('k4bn').textContent = data.highest ? dayLabel(data.highest.d) : '';
 }
 
-/* ---------- scoreboard placeholder ---------- */
-function renderScore() {
-  const dl = new Date(data.deadline), now = new Date();
-  const scoredKnown = data.prices.filter(r => r.d >= '2026-10-23').length;
-  if (now < dl) {
-    $('score-big').textContent = '🏁';
-    $('score-text').innerHTML = `Scores are computed on the daily prices from <b style="color:var(--text)">23 to 31 October</b> and on the October average. Until the deadline, you can see how many groups have submitted.`;
-    $('score-tag').textContent = groups == null ? 'Opens after the deadline' : `${groups} group${groups === 1 ? '' : 's'} in the race`;
-  } else {
-    $('score-big').textContent = scoredKnown + ' / 9';
-    $('score-text').textContent = scoredKnown === 0
-      ? 'Submissions are closed. The first scored day (23 October) appears here when its price is published, around 13:00 on the 22nd.'
-      : `${scoredKnown} of the 9 scored days are known. The scoreboard is on its way.`;
-    $('score-tag').textContent = 'Scoreboard coming soon';
-  }
-}
-
 /* ---------- timers ---------- */
 function tick() {
   if (!data) return;
-  const now = new Date(), dl = new Date(data.deadline), diff = (dl - now) / 1000;
-  $('c-deadline').textContent = diff > 0 ? dhm(diff) : 'closed';
+  const now = new Date();
+  if (data.board) { $('c-known').textContent = data.board.n_known + ' / 9'; $('c-groups').textContent = data.board.n_groups; }
   const o = osloParts(), tomorrow = addDays(o.date, 1), known = data.last_day >= tomorrow;
   const target = known ? 86400 + 13 * 3600 - o.secs : 13 * 3600 - o.secs;
   const chip = $('chip-next');
@@ -357,10 +440,306 @@ function tick() {
 
 function toast(msg) { const t = $('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 6000); }
 
+/* ================= scoreboard ================= */
+const B = () => data.board;
+const FINAL = () => B().month_actual != null;
+const NARROW = () => window.innerWidth < 640;
+let mode = 'official', sortKey = 'rank', sortDir = 1, selGroup = null, selSid = null;
+let chartSpag, chartDetail, chartHeat, chartCurve, chartMonth;
+const colourOf = {};
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const dShort = iso => (+iso.slice(8, 10)) + ' ' + MONTHS[+iso.slice(5, 7) - 1];
+const fmtT = iso => new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Oslo', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(new Date(iso)).replace(',', '');
+const esc = x => String(x).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const signed = (x, d = 2) => x == null ? '–' : (x > 0 ? '+' : x < 0 ? '−' : '') + Math.abs(x).toFixed(d);
+
+function setColours() {
+  const names = [...new Set(B().subs.filter(s => !s.benchmark).map(s => s.group))].sort();
+  names.forEach((g, i) => colourOf[g] = `hsl(${Math.round((i * 137.508) % 360)} 72% 64%)`);
+  B().subs.filter(s => s.benchmark).forEach(s => colourOf[s.group] = '#8b9cbc');
+}
+function octKnownSum() {
+  return data.prices.filter(r => r.d >= data.month_start && r.d <= data.month_end).reduce((a, r) => a + r.p, 0);
+}
+function projection(sub) {            // the known days plus the group's own forecasts for the days not yet known
+  let sum = octKnownSum();
+  sub.p.forEach((v, i) => { if (B().actual[i] == null) sum += v; });
+  return sum / data.month.n_days;
+}
+function groupEntries() {
+  const bg = new Map();
+  B().subs.forEach(s => { if (!bg.has(s.group)) bg.set(s.group, []); bg.get(s.group).push(s); });
+  const out = [];
+  bg.forEach(list => {
+    list.sort((a, b) => a.t.localeCompare(b.t));
+    const bench = list[0].benchmark;
+    const official = list.find(s => s.official) || list[list.length - 1];
+    let chosen = official;
+    if (!bench && mode === 'best' && B().n_known > 0) {
+      const cand = list.filter(s => s.mean_crps != null).sort((a, b) => a.mean_crps - b.mean_crps || b.t.localeCompare(a.t));
+      if (cand.length) chosen = cand[0];
+    }
+    out.push({ group: list[0].group, display: list[0].display, bench, list, official, chosen, nsub: list.length });
+  });
+  return out;
+}
+function addRanks(es) {
+  const gs = es.filter(e => !e.bench && e.chosen.n > 0);
+  const final = B().month_actual != null;
+  const keys = final ? ['mean_crps', 'rmse', 'm_abs', 'm_crps'] : ['mean_crps', 'rmse'];
+  const rk = (key) => gs.forEach(e => e['r_' + key] = 1 + gs.filter(o => o.chosen[key] < e.chosen[key]).length);
+  keys.forEach(rk);
+  gs.forEach(e => e.rsum = keys.reduce((a, k) => a + e['r_' + k], 0));
+  const sorted = [...gs].sort((a, b) => a.rsum - b.rsum || a.chosen.mean_crps - b.chosen.mean_crps);
+  sorted.forEach((e, i) => { e.overall = (i > 0 && sorted[i - 1].rsum === e.rsum && sorted[i - 1].chosen.mean_crps === e.chosen.mean_crps) ? sorted[i - 1].overall : i + 1; });
+  es.filter(e => e.bench && e.chosen.n > 0).forEach(e => {
+    e.rsum = keys.reduce((a, k) => a + 1 + gs.filter(o => o.chosen[k] < e.chosen[k]).length, 0) - 0.5 * keys.length / 2;
+  });
+  return es;
+}
+function sortedEntries() {
+  const es = addRanks(groupEntries());
+  const val = e => {
+    const c = e.chosen;
+    switch (sortKey) {
+      case 'mabs': return c.m_abs; case 'mcrps': return c.m_crps;
+      case 'crps': return c.mean_crps; case 'rmse': return c.rmse; case 'bias': return c.bias == null ? null : Math.abs(c.bias);
+      case 'time': return c.t; case 'proj': return projection(c); case 'name': return e.display.toLowerCase();
+      default: return e.rsum == null ? null : e.rsum + (c.mean_crps || 0) / 1000;
+    }
+  };
+  return es.sort((a, b) => {
+    const x = val(a), y = val(b);
+    if (x == null && y == null) return 0; if (x == null) return 1; if (y == null) return -1;
+    return (x < y ? -1 : x > y ? 1 : 0) * sortDir;
+  });
+}
+
+/* ---------- KPIs ---------- */
+function renderBoardKpis(es) {
+  const b = B(), gs = es.filter(e => !e.bench && e.chosen.n > 0);
+  $('b1').textContent = b.n_known;
+  const next = b.scored_days[b.n_known];
+  $('b1n').textContent = b.n_known === 9 ? 'All scored days are known. Final scoring next.' : `Next: ${dShort(next)} (published at about 13:00 the day before)`;
+  if (gs.length) {
+    const top = [...gs].sort((a, b) => a.overall - b.overall || a.chosen.mean_crps - b.chosen.mean_crps);
+    $('b2').textContent = top[0].display;
+    $('b2n').innerHTML = `CRPS ${fmt(top[0].chosen.mean_crps, 3)} · RMSE ${fmt(top[0].chosen.rmse, 3)}<br><span style="color:var(--faint)">Next: ${top[1] ? esc(top[1].display) : '–'}</span>`;
+    const sn = es.find(e => e.bench && e.group.includes('seasonal')), nv = es.find(e => e.bench && e.group.includes('naive') && !e.group.includes('seasonal'));
+    const beat = (bm) => bm ? gs.filter(e => e.chosen.mean_crps < bm.chosen.mean_crps).length : null;
+    $('b3').textContent = beat(sn) + ' of ' + gs.length;
+    $('b3u').textContent = '';
+    $('b3n').innerHTML = `beat the seasonal naive forecast<br><span style="color:var(--faint)">${beat(nv)} beat the naive · ${beat(es.find(e => e.bench && e.group.includes('7-day')))} beat the 7-day mean</span>`;
+    const proj = gs.map(e => projection(e.chosen)).sort((a, b) => a - b), med = proj[Math.floor(proj.length / 2)];
+    const sub = gs.map(e => e.chosen.month ? e.chosen.month.point : null).filter(x => x != null).sort((a, b) => a - b);
+    $('b4').textContent = fmt(med);
+    $('b4n').innerHTML = `Median projection now<br><span style="color:var(--faint)">Submitted (median): ${fmt(sub[Math.floor(sub.length / 2)])} · so far: ${fmt(data.month.avg_so_far)}</span>`;
+  } else {
+    $('b2').textContent = '–'; $('b2n').textContent = 'The first scored day is 23 October.'; $('b3').textContent = '–'; $('b4').textContent = fmt(data.month.avg_so_far);
+  }
+}
+
+/* ---------- leaderboard table ---------- */
+function renderTable(es) {
+  const maxC = Math.max(...es.map(e => e.chosen.mean_crps || 0), 0.001);
+  const th = (key, label, cls = '') => `<th class="${cls} ${key ? 'sortable' : ''} ${sortKey === key ? 'sorted' : ''}" ${key ? `data-sort="${key}"` : ''}>${label}${sortKey === key ? (sortDir > 0 ? ' ▲' : ' ▼') : ''}</th>`;
+  let html = '<thead><tr>' + th('rank', '#', 'l') + th('name', 'Group', 'l') + th('crps', 'CRPS') + th('rmse', 'RMSE') + th('bias', 'Bias') +
+    th('', '90% hits') + (FINAL() ? th('mabs', 'Month abs. error') + th('mcrps', 'Month CRPS') : '') + th('', 'October avg forecast') + (FINAL() ? '' : th('proj', 'Projection now')) + th('time', 'Submitted') + '</tr></thead><tbody>';
+  es.forEach(e => {
+    const c = e.chosen, has = c.n > 0, hits = has ? Math.round(c.cover90 * c.n) : null;
+    const rankCell = e.bench ? '<td class="rank" style="color:var(--faint)">·</td>' :
+      `<td class="rank ${e.overall <= 3 ? 'r' + e.overall : ''}">${has ? e.overall : '–'}</td>`;
+    const badge = e.bench ? '<span class="badge bm">benchmark</span>' :
+      (mode === 'best' && e.chosen !== e.official ? `<span class="badge best">best of ${e.nsub}</span>` : (e.nsub > 1 ? `<span class="badge">${e.nsub} submissions</span>` : ''));
+    const w = has ? Math.round(60 * c.mean_crps / maxC) : 0;
+    html += `<tr class="row ${e.bench ? 'bench' : ''} ${e.group === selGroup ? 'sel' : ''}" data-g="${esc(e.group)}">` + rankCell +
+      `<td class="l"><div class="gname"><span class="dot" style="background:${colourOf[e.group]}"></span>${esc(e.display)} ${badge}</div></td>` +
+      `<td><span class="cbar"><i style="width:${w}px"></i><b>${has ? fmt(c.mean_crps, 3) : '–'}</b></span></td>` +
+      `<td>${has ? fmt(c.rmse, 3) : '–'}</td>` +
+      `<td class="${has && c.bias > 0.005 ? 'pos' : has && c.bias < -0.005 ? 'neg' : ''}">${has ? signed(c.bias) : '–'}</td>` +
+      `<td>${has ? hits + ' / ' + c.n : '–'}</td>` +
+      (FINAL() ? `<td>${fmt(c.m_abs, 3)}</td><td>${fmt(c.m_crps, 3)}</td>` : '') +
+      `<td>${c.month ? fmt(c.month.point) + ' <span class="small">[' + fmt(c.month.q05) + '–' + fmt(c.month.q95) + ']</span>' : '–'}</td>` +
+      (FINAL() ? '' : `<td>${fmt(projection(c))}</td>`) +
+      `<td class="small">${e.bench ? 'deadline day' : fmtT(c.t)}</td></tr>`;
+  });
+  $('board').innerHTML = html + '</tbody>';
+  $('board').querySelectorAll('th.sortable').forEach(h => h.onclick = () => {
+    const k = h.dataset.sort; if (sortKey === k) sortDir = -sortDir; else { sortKey = k; sortDir = 1; }
+    renderBoard();
+  });
+  $('board').querySelectorAll('tr.row').forEach(r => r.onclick = () => { selGroup = r.dataset.g; selSid = null; renderBoard(); });
+}
+
+/* ---------- group detail ---------- */
+function renderDetail(es) {
+  const e = es.find(x => x.group === selGroup) || es.find(x => !x.bench && x.chosen.n > 0) || es[0];
+  if (!e) return;
+  selGroup = e.group;
+  const sub = e.list.find(s => s.id === selSid) || e.chosen;
+  selSid = sub.id;
+  $('detail-title').innerHTML = `<span class="dot" style="display:inline-block;background:${colourOf[e.group]};margin-right:8px"></span>${esc(e.display)}`;
+  $('detail-subs').innerHTML = e.list.length > 1 ? e.list.map(s => {
+    const lab = fmtT(s.t) + (s.n > 0 ? ' · ' + fmt(s.mean_crps, 3) : '');
+    return `<button data-id="${s.id}" class="${s.id === sub.id ? 'on' : ''} ${s.official ? '' : 'off'}" title="${s.official ? 'official (last) submission' : 'earlier submission'}">${s.official ? '★ ' : ''}${lab}</button>`;
+  }).join('') : '<span class="small">One submission' + (e.bench ? ' (made on the deadline day with the data available then)' : '') + '</span>';
+  $('detail-subs').querySelectorAll('button').forEach(bt => bt.onclick = () => { selSid = bt.dataset.id; renderDetail(es); });
+
+  const days = B().scored_days, act = B().actual;
+  const rows = days.map((d, i) => {
+    const known = act[i] != null, err = known ? sub.p[i] - act[i] : null, inside = known ? (act[i] >= sub.q05[i] && act[i] <= sub.q95[i]) : null;
+    return `<tr class="${known ? '' : 'unk'}"><td>${dShort(d)}</td><td>${known ? fmt(act[i]) : '?'}</td><td>${fmt(sub.p[i])}</td><td class="small">${fmt(sub.q05[i])}–${fmt(sub.q95[i])}</td><td class="${known ? (err > 0 ? 'pos' : 'neg') : ''}">${known ? signed(err) : '–'}</td><td>${known ? fmt(sub.crps[i], 3) : '–'}</td><td class="${known ? (inside ? 'in' : 'out') : ''}">${known ? (inside ? '✓' : '✗') : ''}</td></tr>`;
+  }).join('');
+  $('detail-days').innerHTML = '<thead><tr><th>Day</th><th>Actual</th><th>Forecast</th><th>90% interval</th><th>Error</th><th>CRPS</th><th>In</th></tr></thead><tbody>' + rows + '</tbody>';
+  $('detail-note').innerHTML = sub.month ? `October average: forecast <b style="color:var(--text)">${fmt(sub.month.point)}</b> [${fmt(sub.month.q05)}–${fmt(sub.month.q95)}] · projection now <b style="color:var(--after)">${fmt(projection(sub))}</b>` : '';
+
+  const cats = days.map(dShort);
+  const lo = sub.q05, hi = sub.q95, lo2 = sub.q25, hi2 = sub.q75;
+  const col = colourOf[e.group];
+  chartDetail.setOption({
+    animationDuration: 500, textStyle: { fontFamily: 'Inter, system-ui, sans-serif' },
+    grid: { left: 44, right: 16, top: 24, bottom: 34 },
+    tooltip: { trigger: 'axis', backgroundColor: 'rgba(8,15,30,.92)', borderColor: 'rgba(255,255,255,.12)', textStyle: { color: '#e8eefb', fontSize: 13 },
+      formatter: ps => { const i = ps[0].dataIndex; return `<b>${cats[i]}</b><br>Forecast ${fmt(sub.p[i])} <span style="color:#8b9cbc">(50%: ${fmt(lo2[i])}–${fmt(hi2[i])}, 90%: ${fmt(lo[i])}–${fmt(hi[i])})</span>` + (act[i] != null ? `<br>Actual <b style="color:${C.after}">${fmt(act[i])}</b>` : ''); } },
+    xAxis: { type: 'category', data: cats, boundaryGap: false, axisLabel: { color: C.text }, axisLine: { lineStyle: { color: 'rgba(255,255,255,.2)' } } },
+    yAxis: { type: 'value', scale: true, axisLabel: { color: C.text, formatter: v => v.toFixed(1) }, splitLine: { lineStyle: { color: C.grid } } },
+    series: [
+      { type: 'line', stack: 'b90', symbol: 'none', silent: true, lineStyle: { opacity: 0 }, data: lo, tooltip: { show: false } },
+      { type: 'line', stack: 'b90', symbol: 'none', silent: true, lineStyle: { opacity: 0 }, areaStyle: { color: col, opacity: 0.18 }, data: hi.map((v, i) => +(v - lo[i]).toFixed(3)), tooltip: { show: false } },
+      { type: 'line', stack: 'b50', symbol: 'none', silent: true, lineStyle: { opacity: 0 }, data: lo2, tooltip: { show: false } },
+      { type: 'line', stack: 'b50', symbol: 'none', silent: true, lineStyle: { opacity: 0 }, areaStyle: { color: col, opacity: 0.32 }, data: hi2.map((v, i) => +(v - lo2[i]).toFixed(3)), tooltip: { show: false } },
+      { name: 'Forecast', type: 'line', symbol: 'none', lineStyle: { color: col, width: 2.4, type: 'dashed' }, data: sub.p, z: 3 },
+      { name: 'Actual', type: 'line', symbol: 'circle', symbolSize: 9, itemStyle: { color: C.after, borderColor: '#fff', borderWidth: 1.5 }, lineStyle: { color: C.after, width: 3.2, shadowColor: 'rgba(255,138,61,.5)', shadowBlur: 10 }, data: act, z: 5 }]
+  }, true);
+}
+
+/* ---------- everyone against reality ---------- */
+function renderSpag(es) {
+  const days = B().scored_days, act = B().actual;
+  const lead = es.find(e => !e.bench && e.overall === 1);
+  const series = es.map(e => ({
+    name: e.display, type: 'line', symbol: 'none', smooth: false, emphasis: { focus: 'series', lineStyle: { width: 3.5 } },
+    lineStyle: { color: colourOf[e.group], width: e.bench ? 1.6 : (lead && e.group === lead.group ? 3 : 1.4), opacity: e.bench ? 0.9 : (lead && e.group === lead.group ? 1 : 0.5), type: e.bench ? 'dashed' : 'solid' },
+    data: e.chosen.p, z: e.bench ? 2 : 3
+  }));
+  series.push({ name: 'Actual price', type: 'line', symbol: 'circle', symbolSize: 10, itemStyle: { color: C.after, borderColor: '#fff', borderWidth: 1.5 },
+    lineStyle: { color: C.after, width: 4, shadowColor: 'rgba(255,138,61,.6)', shadowBlur: 12 }, data: act, z: 9 });
+  chartSpag.setOption({
+    animationDuration: 600, textStyle: { fontFamily: 'Inter, system-ui, sans-serif' },
+    grid: { left: 46, right: 22, top: 24, bottom: 36 },
+    tooltip: { trigger: 'item', backgroundColor: 'rgba(8,15,30,.92)', borderColor: 'rgba(255,255,255,.12)', textStyle: { color: '#e8eefb', fontSize: 13 },
+      formatter: p => `<b>${esc(p.seriesName)}</b><br>${dShort(days[p.dataIndex])}: ${fmt(p.value)}` },
+    xAxis: { type: 'category', data: days.map(dShort), boundaryGap: false, axisLabel: { color: C.text }, axisLine: { lineStyle: { color: 'rgba(255,255,255,.2)' } } },
+    yAxis: { type: 'value', scale: true, name: 'NOK/kWh', nameTextStyle: { color: C.text, align: 'left' }, axisLabel: { color: C.text, formatter: v => v.toFixed(1) }, splitLine: { lineStyle: { color: C.grid } } },
+    series
+  }, true);
+}
+
+/* ---------- heat map: CRPS by day ---------- */
+function renderHeat(es) {
+  const rows = es.filter(e => e.chosen.n > 0), days = B().scored_days, act = B().actual;
+  const nm = e => e.bench ? e.display.replace('Benchmark: ', '') + ' (benchmark)' : e.display;
+  const names = rows.map(nm).reverse();
+  const cells = []; let mx = 0.1;
+  rows.slice().reverse().forEach((e, y) => e.chosen.crps.forEach((v, x) => { if (v != null) { cells.push([x, y, v]); mx = Math.max(mx, v); } }));
+  const h = Math.max(240, 70 + rows.length * 25);
+  $('chart-heat').style.height = h + 'px'; chartHeat.resize();
+  chartHeat.setOption({
+    animationDuration: 500, textStyle: { fontFamily: 'Inter, system-ui, sans-serif' },
+    grid: { left: NARROW() ? 118 : 190, right: 10, top: 8, bottom: 52 },
+    tooltip: { backgroundColor: 'rgba(8,15,30,.92)', borderColor: 'rgba(255,255,255,.12)', textStyle: { color: '#e8eefb' },
+      formatter: p => `<b>${esc(names[p.value[1]])}</b><br>${dShort(days[p.value[0]])}: CRPS ${fmt(p.value[2], 3)}` },
+    xAxis: { type: 'category', data: days.map((d, i) => (NARROW() ? String(+d.slice(8, 10)) : dShort(d)) + '\n' + (act[i] != null ? fmt(act[i]) : '?')), position: 'bottom', axisLabel: { color: C.text, fontSize: 11, interval: 0 }, axisLine: { show: false }, axisTick: { show: false }, splitArea: { show: false } },
+    yAxis: { type: 'category', data: names, axisLabel: { color: '#c5d2ea', fontSize: NARROW() ? 10 : 11.5, interval: 0, width: NARROW() ? 108 : 180, overflow: 'truncate' }, axisLine: { show: false }, axisTick: { show: false } },
+    visualMap: { min: 0, max: mx, calculable: false, show: false, inRange: { color: ['#12385f', '#4aa8ff', '#c792ff', '#ff6b81'] } },
+    series: [{ type: 'heatmap', data: cells, itemStyle: { borderColor: 'rgba(7,13,26,.9)', borderWidth: 2, borderRadius: 4 },
+      label: { show: !NARROW(), formatter: p => p.value[2].toFixed(2), color: '#fff', fontSize: 10 } }]
+  }, true);
+}
+
+/* ---------- information curve ---------- */
+function renderCurve(es) {
+  const b = B(), dl = new Date(b.deadline).getTime();
+  const series = []; const bm = es.filter(e => e.bench && e.chosen.n > 0);
+  es.filter(e => !e.bench).forEach(e => {
+    const pts = e.list.filter(s => s.n > 0).map(s => ({ value: [new Date(s.t).getTime(), s.mean_crps], symbolSize: s.official ? 13 : 7,
+      itemStyle: s.official ? { color: colourOf[e.group], borderColor: '#fff', borderWidth: 1.5 } : { color: 'transparent', borderColor: colourOf[e.group], borderWidth: 1.5 } }));
+    if (!pts.length) return;
+    series.push({ name: e.display, type: 'line', symbol: 'circle', data: pts, lineStyle: { color: colourOf[e.group], width: 1.4, opacity: 0.55 }, emphasis: { focus: 'series' }, z: 3 });
+  });
+  const lines = bm.filter(e => !e.group.includes('7-day')).map(e => ({ yAxis: e.chosen.mean_crps, lineStyle: { color: '#8b9cbc', type: 'dashed', width: 1.2 }, label: { formatter: e.group.replace('Benchmark: ', ''), color: '#8b9cbc', position: 'insideEndTop', fontSize: 11 } }));
+  series.push({ type: 'line', data: [], markLine: { symbol: 'none', silent: true, animation: false, data: [...lines, { xAxis: dl, lineStyle: { color: '#ffd166', width: 1.5 }, label: { formatter: 'Deadline', color: '#ffd166', position: 'insideStartTop', fontSize: 11 } }] } });
+  chartCurve.setOption({
+    animationDuration: 500, textStyle: { fontFamily: 'Inter, system-ui, sans-serif' },
+    grid: { left: 52, right: 18, top: 38, bottom: 40 },
+    tooltip: { trigger: 'item', backgroundColor: 'rgba(8,15,30,.92)', borderColor: 'rgba(255,255,255,.12)', textStyle: { color: '#e8eefb' },
+      formatter: p => p.seriesName ? `<b>${esc(p.seriesName)}</b><br>${fmtT(new Date(p.value[0]).toISOString())}<br>CRPS ${fmt(p.value[1], 3)}` : '' },
+    xAxis: { type: 'time', max: dl + 3600000 * 6, minInterval: 2 * 86400000, axisLabel: { color: C.text, hideOverlap: true, formatter: v => { const d = new Date(v); return d.getDate() + ' ' + MONTHS[d.getMonth()]; } }, axisLine: { lineStyle: { color: 'rgba(255,255,255,.2)' } }, splitLine: { show: false } },
+    yAxis: { type: 'value', scale: true, name: 'Daily CRPS', nameTextStyle: { color: C.text, align: 'left' }, axisLabel: { color: C.text, formatter: v => v.toFixed(2) }, splitLine: { lineStyle: { color: C.grid } } },
+    series
+  }, true);
+}
+
+/* ---------- the October average ---------- */
+function renderMonth(es) {
+  const rows = es.filter(e => e.chosen.month).map(e => ({ e, proj: projection(e.chosen), m: e.chosen.month })).sort((a, b) => a.proj - b.proj);
+  const names = rows.map(r => r.e.bench ? r.e.display.replace('Benchmark: ', '') + ' (benchmark)' : r.e.display);
+  const h = Math.max(300, 70 + rows.length * 24);
+  $('chart-month').style.height = h + 'px'; chartMonth.resize();
+  const range = rows.map((r, i) => [r.m.q05, r.m.q95, i]);
+  const mn = Math.min(...rows.map(r => Math.min(r.m.q05, r.proj)), data.month.avg_so_far) - 0.03, mx = Math.max(...rows.map(r => Math.max(r.m.q95, r.proj))) + 0.03;
+  chartMonth.setOption({
+    animationDuration: 500, textStyle: { fontFamily: 'Inter, system-ui, sans-serif' },
+    grid: { left: NARROW() ? 118 : 190, right: 16, top: 22, bottom: 38 },
+    tooltip: { trigger: 'item', backgroundColor: 'rgba(8,15,30,.92)', borderColor: 'rgba(255,255,255,.12)', textStyle: { color: '#e8eefb' },
+      formatter: p => { const r = rows[p.value[1]]; if (!r) return ''; return `<b>${esc(r.e.display)}</b><br>Submitted ${fmt(r.m.point)} <span style="color:#8b9cbc">[${fmt(r.m.q05)}–${fmt(r.m.q95)}]</span><br>Projection now <b style="color:${C.after}">${fmt(r.proj)}</b>`; } },
+    xAxis: { type: 'value', min: +mn.toFixed(2), max: +mx.toFixed(2), name: 'NOK/kWh', nameLocation: 'middle', nameGap: 24, nameTextStyle: { color: C.text }, axisLabel: { color: C.text, formatter: v => v.toFixed(2) }, splitLine: { lineStyle: { color: C.grid } } },
+    yAxis: { type: 'category', data: names, axisLabel: { color: '#c5d2ea', fontSize: NARROW() ? 10 : 11.5, interval: 0, width: NARROW() ? 108 : 180, overflow: 'truncate' }, axisLine: { show: false }, axisTick: { show: false } },
+    series: [
+      { type: 'custom', silent: true, z: 2, data: range, encode: { x: [0, 1], y: 2 },
+        renderItem: (params, api) => { const a = api.coord([api.value(0), api.value(2)]), c = api.coord([api.value(1), api.value(2)]);
+          return { type: 'group', children: [{ type: 'line', shape: { x1: a[0], y1: a[1], x2: c[0], y2: c[1] }, style: { stroke: '#8b9cbc', lineWidth: 4, opacity: 0.35 } },
+            { type: 'line', shape: { x1: a[0], y1: a[1] - 5, x2: a[0], y2: a[1] + 5 }, style: { stroke: '#8b9cbc', lineWidth: 2, opacity: 0.6 } },
+            { type: 'line', shape: { x1: c[0], y1: c[1] - 5, x2: c[0], y2: c[1] + 5 }, style: { stroke: '#8b9cbc', lineWidth: 2, opacity: 0.6 } }] }; } },
+      { name: 'Submitted', type: 'scatter', symbolSize: 9, itemStyle: { color: '#c5d2ea' }, data: rows.map((r, i) => [r.m.point, i]), z: 3 },
+      { name: 'Projection now', type: 'scatter', symbol: 'diamond', symbolSize: 14, itemStyle: { color: C.after, borderColor: '#fff', borderWidth: 1 }, data: rows.map((r, i) => [r.proj, i]), z: 5 },
+      { type: 'line', data: [], markLine: { symbol: 'none', silent: true, animation: false, data: [
+        { xAxis: data.month.avg_so_far, lineStyle: { color: C.avg, width: 2 }, label: { formatter: 'So far ' + fmt(data.month.avg_so_far), color: C.avg, position: 'end', fontSize: 11, distance: 4 } },
+        ...(data.month.proj_median != null ? [{ xAxis: data.month.proj_median, lineStyle: { color: C.proj, type: 'dashed', width: 2 }, label: { formatter: 'Benchmark ' + fmt(data.month.proj_median), color: C.proj, position: 'insideEndBottom', fontSize: 11 } }] : [])] } }
+    ]
+  }, true);
+}
+
+/* ---------- the whole scoreboard ---------- */
+function renderBoard() {
+  if (!data || !data.board) return;
+  if (!Object.keys(colourOf).length) setColours();
+  const es = sortedEntries();
+  renderBoardKpis(es);
+  $('lb-status').textContent = FINAL() ? '· final result, all four categories' : '· provisional, daily prices only (the October average is scored on 31 October)';
+  const hint = mode === 'official'
+    ? 'Each group is scored with its <b>last submission before the deadline</b>, which is the competition rule. The rank is the sum of the ranks in daily RMSE and daily CRPS' + (FINAL() ? ', and the absolute error and CRPS of the October average' : ' (the monthly categories are added on 31 October)') + '. Click a row to see the forecasts day by day, or a column to sort.'
+    : 'Each group is represented by the submission with the <b>lowest CRPS on the days known so far</b>, picked in hindsight. It is flattering and not the competition result: the official rule is the last submission.';
+  $('lb-hint').innerHTML = hint + (B().n_known === 0 ? ' <b>No scored day is known yet.</b>' : '');
+  document.querySelectorAll('#seg button').forEach(bt => bt.classList.toggle('on', bt.dataset.m === mode));
+  renderTable(es);
+  if (B().n_known > 0) { renderDetail(es); renderSpag(es); renderHeat(es); renderCurve(es); }
+  renderMonth(es);
+}
+function resizeAll() { [chartMain, chartHist, chartSpag, chartDetail, chartHeat, chartCurve, chartMonth].forEach(c => c && c.resize()); }
+
+document.querySelectorAll('#seg button').forEach(bt => bt.onclick = () => { mode = bt.dataset.m; selSid = null; renderBoard(); });
+function showTab(t) {
+  document.querySelectorAll('.tab').forEach(b => b.classList.toggle('on', b.dataset.tab === t));
+  document.querySelectorAll('.pane').forEach(p => p.classList.toggle('on', p.id === 'pane-' + t));
+  history.replaceState(null, '', '#' + t); setTimeout(resizeAll, 30);
+}
+document.querySelectorAll('.tab').forEach(b => b.onclick = () => showTab(b.dataset.tab));
+
 /* ---------- main ---------- */
 function render() {
   $('subtitle').textContent = `${data.area} · Western Norway · daily mean price, NOK/kWh excluding VAT`;
-  renderKpis(); renderCalendar(); renderScore();
+  renderKpis(); renderCalendar(); renderBoard();
   chartMain.setOption(mainOption(), true);
   chartHist.setOption(histOption(), true);
   tick();
@@ -375,16 +754,18 @@ async function load() {
     lastDayShown = d.last_day;
   } catch (e) { $('updated').textContent = 'Could not load data'; $('pulse').classList.add('stale'); }
 }
-async function loadGroups() {
-  try { const r = await fetch(SUBMIT_URL, { cache: 'no-store' }); const d = await r.json(); groups = d.groups ? d.groups.length : null; $('c-groups').textContent = groups; if (data) renderScore(); }
-  catch (e) { $('c-groups').textContent = '–'; }
-}
-
 chartMain = echarts.init($('chart-main'), null, { renderer: 'canvas' });
 chartHist = echarts.init($('chart-hist'), null, { renderer: 'canvas' });
-window.addEventListener('resize', () => { chartMain.resize(); chartHist.resize(); });
-load(); loadGroups();
-setInterval(load, REFRESH_MS); setInterval(loadGroups, 5 * REFRESH_MS); setInterval(tick, 1000);
+chartSpag = echarts.init($('chart-spag'), null, { renderer: 'canvas' });
+chartDetail = echarts.init($('chart-detail'), null, { renderer: 'canvas' });
+chartHeat = echarts.init($('chart-heat'), null, { renderer: 'canvas' });
+chartCurve = echarts.init($('chart-curve'), null, { renderer: 'canvas' });
+chartMonth = echarts.init($('chart-month'), null, { renderer: 'canvas' });
+if (location.hash === '#prices') showTab('prices');
+window.addEventListener('hashchange', () => showTab(location.hash === '#prices' ? 'prices' : 'score'));
+window.addEventListener('resize', resizeAll);
+load();
+setInterval(load, REFRESH_MS); setInterval(tick, 1000);
 </script>
 </body>
 </html>

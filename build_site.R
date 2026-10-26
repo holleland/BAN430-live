@@ -11,6 +11,7 @@ suppressPackageStartupMessages({
   library(jsonlite)
 })
 source("status_plot.R")
+source("board.R")
 
 out <- "site"
 dir.create(out, showWarnings = FALSE)
@@ -61,9 +62,10 @@ payload <- list(
     list(d = as.character(f$date), q05 = r3(f$q05), q25 = r3(f$q25), q50 = r3(f$q50),
          q75 = r3(f$q75), q95 = r3(f$q95))
   }) else list(),
-  hist = hist_out
+  hist = hist_out,
+  board = scoreboard_data(d$no5)
 )
-write_json(payload, file.path(out, "data.json"), auto_unbox = TRUE, null = "null", pretty = FALSE)
+write_json(payload, file.path(out, "data.json"), auto_unbox = TRUE, null = "null", na = "null", pretty = FALSE)
 
 # static figure
 theme_set(theme_bw() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()))

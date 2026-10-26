@@ -736,6 +736,56 @@ function showTab(t) {
 }
 document.querySelectorAll('.tab').forEach(b => b.onclick = () => showTab(b.dataset.tab));
 
+
+/* ---------- the page rescores itself: prices straight from the price service ---------- */
+const PRICE_API = (d) => `https://www.hvakosterstrommen.no/api/v1/prices/${d.slice(0, 4)}/${d.slice(5, 7)}-${d.slice(8, 10)}_NO5.json`;
+const PLEVELS = Array.from({ length: 19 }, (_, k) => 0.05 * (k + 1));
+function recalcMonth() {
+  const oct = data.prices.filter(r => r.d >= data.month_start && r.d <= data.month_end).sort((a, b) => a.d.localeCompare(b.d));
+  const m = data.month, last = oct[oct.length - 1], prev = oct[oct.length - 2];
+  m.known_days = oct.length; m.days_left = m.n_days - oct.length;
+  m.avg_so_far = oct.reduce((a, r) => a + r.p, 0) / oct.length;
+  if (m.days_left === 0) { m.proj_median = null; m.proj_q05 = null; m.proj_q95 = null; data.forecast = []; data.hist = null; }
+  data.last_day = last.d; data.latest = last; data.previous = prev || null;
+  data.lowest = oct.reduce((a, r) => (r.p < a.p ? r : a), oct[0]); data.highest = oct.reduce((a, r) => (r.p > a.p ? r : a), oct[0]);
+}
+async function topUpPrices() {
+  if (!data || !data.board) return false;
+  const b = data.board, tomorrow = addDays(osloParts().date, 1);
+  let added = false;
+  for (let i = 0; i < b.scored_days.length; i++) {
+    const d = b.scored_days[i];
+    if (b.actual[i] != null || d > tomorrow) continue;
+    if (d === tomorrow && osloParts().secs < 13 * 3600 + 120) continue;   // tomorrow's prices are published at about 13:00
+    try {
+      const r = await fetch(PRICE_API(d), { cache: 'no-store' });
+      if (!r.ok) continue;
+      const a = await r.json();
+      if (!Array.isArray(a) || a.length < 23) continue;
+      const p = +(a.reduce((s, x) => s + x.NOK_per_kWh, 0) / a.length).toFixed(3);
+      b.actual[i] = p; added = true;
+      if (!data.prices.some(x => x.d === d)) data.prices.push({ d, p });
+    } catch (e) { /* the price is not published yet */ }
+  }
+  if (added) { data.prices.sort((x, y) => x.d.localeCompare(y.d)); recalcMonth(); }
+  return added;
+}
+function rescoreAll() {
+  const b = data.board, act = b.actual;
+  const oct = data.prices.filter(r => r.d >= data.month_start && r.d <= data.month_end);
+  b.month_actual = oct.length === data.month.n_days ? oct.reduce((a, r) => a + r.p, 0) / oct.length : null;
+  b.n_known = act.filter(x => x != null).length;
+  const qs = (q, y) => { let c = 0; for (let k = 0; k < 19; k++) c += y < q[k] ? 2 * (1 - PLEVELS[k]) * (q[k] - y) : 2 * PLEVELS[k] * (y - q[k]); return c / 20; };
+  b.subs.forEach(s => {
+    let n = 0, se = 0, sc = 0, sb = 0, hits = 0;
+    s.crps = s.p.map((p, i) => {
+      const y = act[i]; if (y == null) return null;
+      n++; const c = qs(s.q[i], y); se += (p - y) ** 2; sb += p - y; sc += c; hits += (y >= s.q05[i] && y <= s.q95[i]) ? 1 : 0; return c;
+    });
+    s.n = n; s.rmse = n ? Math.sqrt(se / n) : null; s.mean_crps = n ? sc / n : null; s.bias = n ? sb / n : null; s.cover90 = n ? hits / n : null;
+    if (b.month_actual != null && s.mq) { s.m_abs = Math.abs(s.month.point - b.month_actual); s.m_crps = qs(s.mq, b.month_actual); } else { s.m_abs = null; s.m_crps = null; }
+  });
+}
 /* ---------- main ---------- */
 function render() {
   $('subtitle').textContent = `${data.area} · Western Norway · daily mean price, NOK/kWh excluding VAT`;
@@ -749,9 +799,11 @@ async function load() {
     const r = await fetch(DATA_URL + '?t=' + Date.now(), { cache: 'no-store' });
     const d = await r.json();
     const changed = lastDayShown && d.last_day !== lastDayShown;
-    data = d; render();
-    if (changed) toast('New prices are in: ' + dayLabel(d.last_day));
-    lastDayShown = d.last_day;
+    data = d;
+    await topUpPrices(); if (data.board) rescoreAll();
+    render();
+    if (changed) toast('New prices are in: ' + dayLabel(data.last_day));
+    lastDayShown = data.last_day;
   } catch (e) { $('updated').textContent = 'Could not load data'; $('pulse').classList.add('stale'); }
 }
 chartMain = echarts.init($('chart-main'), null, { renderer: 'canvas' });

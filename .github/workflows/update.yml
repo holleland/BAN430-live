@@ -9,6 +9,8 @@ on:
     - cron: "7,22,37,52 10-13 * * *"
     - cron: "17 0-9,14-23 * * *"
   workflow_dispatch:   # the "Run workflow" button
+  push:
+    branches: [main]   # a push publishes the new version of the page
 
 permissions:
   contents: read

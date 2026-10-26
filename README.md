@@ -53,5 +53,11 @@ python3 -m http.server 8765 --directory site     # open http://localhost:8765
 * While the month runs, the ranking is provisional: the sum of the ranks in daily RMSE and daily CRPS
   on the days known so far. When all prices of the month are known (31 October), the page adds the absolute
   error and CRPS of the October average, and the ranking uses all four categories of the assignment.
+* The page does not depend on how often the workflow runs: it fetches the prices of the scored days straight from
+  hvakosterstrommen.no (the service allows it) and rescores every submission in the browser, so a new price shows up
+  within about two minutes of its publication (13:00). The workflow only has to produce the page and the (fixed)
+  forecasts, and refreshes the price tracker. Scheduled runs on GitHub are best effort and are often hours late.
+* A push to `main` also runs the workflow. To run it by hand: Actions > Update live page > **Run workflow**
+  (not "Re-run jobs", which repeats an old run with the old code).
 * The benchmarks are made with the data of the deadline day (22 October), with 2000 bootstrapped paths.
 * To use another month or deadline, change the defaults in `board.R` and `build_site.R`.

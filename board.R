@@ -96,6 +96,8 @@ scoreboard_data <- function(no5, subs_file = "submissions_clean.csv", display_fi
     list(
       group = rec$group, display = rec$display, benchmark = rec$benchmark, id = rec$sid,
       t = rec$received_at,
+      q = lapply(seq_len(nrow(D)), function(i) round(unname(D[i, qn]), 4)),            # the 19 quantiles per day (the page rescores with these)
+      mq = if (!is.null(rec$month_all)) round(unname(rec$month_all[qn]), 4) else NULL,
       p = r3(D[, "point"]), q05 = r3(D[, "q05"]), q25 = r3(D[, "q25"]), q50 = r3(D[, "q50"]),
       q75 = r3(D[, "q75"]), q95 = r3(D[, "q95"]),
       crps = ifelse(is.na(crps), NA, r3(crps)),

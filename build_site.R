@@ -73,4 +73,6 @@ ggplot2::ggsave(file.path(out, "status.png"), electricity_status(data = d),
                 width = 9, height = 4.2, dpi = 120)
 
 file.copy("src/index.html", file.path(out, "index.html"), overwrite = TRUE)
+# the forecast replay (fixed; made by ../replay/run_replay.R and build_replay_json.R)
+if (file.exists("replay.json")) file.copy("replay.json", file.path(out, "replay.json"), overwrite = TRUE)
 message("Built the live page: prices up to ", d$last_day, ".")

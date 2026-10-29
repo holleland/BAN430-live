@@ -147,6 +147,24 @@
   .explain b { color: var(--text); }
   @media (max-width: 980px) { .detail-grid { grid-template-columns: 1fr; } }
 
+
+  /* forecast replay */
+  .rp-bar { display: flex; align-items: center; gap: 10px; margin: 10px 0 2px; }
+  .rp-btn { appearance: none; border: 1px solid var(--card-border); background: rgba(255,255,255,.06); color: var(--text); width: 40px; height: 40px; border-radius: 50%; font-size: 14px; cursor: pointer; flex: none; }
+  .rp-btn:hover { background: rgba(255,255,255,.12); }
+  #rp-range { flex: 1; min-width: 0; accent-color: var(--after); height: 30px; cursor: pointer; }
+  .rp-now { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 22px; margin-top: 4px; }
+  .rp-now b { font-size: clamp(20px, 2.8vw, 30px); font-weight: 800; letter-spacing: -.02em; }
+  .rp-now span { color: var(--muted); font-size: 13.5px; }
+  .rp-ends { display: flex; justify-content: space-between; color: var(--faint); font-size: 11.5px; margin: 0 52px 0 52px; }
+  select.rp-sel { font: inherit; font-size: 13px; font-weight: 600; color: var(--text); background: rgba(255,255,255,.06); border: 1px solid var(--card-border); border-radius: 10px; padding: 7px 10px; max-width: 240px; }
+  select.rp-sel option { color: #111; }
+  #chart-rp-days, #chart-rp-forest { width: 100%; height: 540px; }
+  #chart-rp-over, #chart-rp-width { width: 100%; height: 340px; }
+  .rp-row { grid-template-columns: 1.45fr 1fr; margin-bottom: 14px; }
+  table.board.rp td, table.board.rp th { padding-left: 8px; padding-right: 8px; }
+  @media (max-width: 980px) { .rp-row { grid-template-columns: 1fr; } #chart-rp-days, #chart-rp-forest { height: 440px; } }
+
   footer { margin-top: 22px; color: var(--faint); font-size: 12.5px; line-height: 1.65; }
   footer a { color: var(--muted); }
   .toast { position: fixed; right: 18px; bottom: 18px; padding: 12px 16px; border-radius: 14px; background: rgba(46,230,166,.15); border: 1px solid rgba(46,230,166,.5); color: #d9fff0; font-size: 14px; font-weight: 600; transform: translateY(80px); opacity: 0; transition: .4s; backdrop-filter: blur(8px); }
@@ -173,7 +191,7 @@
     <div class="chip"><span class="ico">👥</span><span>Groups in the race</span><b id="c-groups">–</b></div>
   </div>
 
-  <nav class="tabs"><button class="tab on" data-tab="score">🏁 Scoreboard</button><button class="tab" data-tab="prices">📈 Prices and benchmark</button></nav>
+  <nav class="tabs"><button class="tab on" data-tab="score">🏁 Scoreboard</button><button class="tab" data-tab="prices">📈 Prices and benchmark</button><button class="tab" data-tab="replay">🎚️ Forecast replay</button></nav>
 
   <div class="pane on" id="pane-score">
     <section class="grid kpis">
@@ -261,6 +279,53 @@
     </div>
   </section>
 
+  </div>
+
+
+  <div class="pane" id="pane-replay">
+    <section class="card" style="margin-bottom:14px">
+      <div class="toolbar">
+        <h2 style="margin:0">Forecast replay <span class="small" style="text-transform:none;letter-spacing:0;font-weight:500">· each group's final model, re-run every day of October</span></h2>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+          <div class="seg" id="rp-view"><button data-v="all" class="on">All groups</button><button data-v="one">One group</button></div>
+          <select class="rp-sel" id="rp-group" aria-label="Group"></select>
+        </div>
+      </div>
+      <div class="hint">Move the slider to travel through October. At each date, every group's final model (as described in its report) is refitted on the prices known <i>that day</i> and used to simulate the rest of the month. Watch the forecasts react to new prices, and the uncertainty about the October average shrink as the month fills up.</div>
+      <div class="rp-bar">
+        <button class="rp-btn" id="rp-prev" title="One day back" aria-label="One day back">◀</button>
+        <button class="rp-btn" id="rp-play" title="Play" aria-label="Play">▶</button>
+        <button class="rp-btn" id="rp-next" title="One day forward" aria-label="One day forward">▶▏</button>
+        <input type="range" id="rp-range" min="0" max="0" value="0" step="1" aria-label="Forecast date">
+      </div>
+      <div class="rp-ends"><span id="rp-end-a"></span><span id="rp-end-b"></span></div>
+      <div class="rp-now"><b id="rp-date">–</b><span id="rp-info"></span></div>
+    </section>
+
+    <section class="grid rp-row">
+      <div class="card"><h2 id="rp-days-title">Daily prices: what is known and what is forecast</h2><div id="chart-rp-days"></div>
+        <div class="legend" id="rp-days-legend"></div></div>
+      <div class="card"><h2>The October average: forecast of each group</h2><div id="chart-rp-forest"></div>
+        <div class="legend"><span><i style="background:#cfd8e6"></i>Median, 50% and 90% interval</span><span><i style="background:var(--warn)"></i>◆ Official submission (22 Oct)</span><span><i class="dash" style="border-color:var(--avg)"></i>Final average</span></div></div>
+    </section>
+
+    <section class="grid row2">
+      <div class="card"><h2>The October average over time: median forecast</h2><div id="chart-rp-over"></div></div>
+      <div class="card"><h2>How sure are they? Width of the 90% interval</h2><div id="chart-rp-width"></div></div>
+    </section>
+
+    <section class="card" style="margin-bottom:14px">
+      <h2>The groups at this date</h2>
+      <div class="tablewrap"><table class="board rp" id="rp-table"></table></div>
+      <div class="small" style="margin-top:8px" id="rp-note"></div>
+    </section>
+
+    <section class="card"><h2>About the replay</h2>
+      <div class="explain">
+        <p>The models are <b>re-implemented from the groups' reports</b> (the final model they chose: transformation, regressors, ARIMA/ETS family, length of the training window and the bootstrap simulation of the paths). Run on the prices the group had at the deadline, fifteen of the eighteen groups reproduce their submitted forecast to about two decimals (four of them had prices only to 21 October). The three groups that use weather forecasts have the weather rebuilt from archived Open-Meteo forecasts, so those are approximate: two come close to the submission, one (Gruppe 10) less so.</p>
+        <p>For a date <i>d</i> the model is fitted on prices up to and including <i>d</i> (a price is public the afternoon before), the remaining days are simulated with resampled residuals (1,000 paths), and the October average of each path is the average of the known days and the simulated days. The grey benchmark is the seasonal naive method. The submitted forecasts that count in the competition are on the Scoreboard tab; this tab shows how the same models would have behaved on every other day.</p>
+      </div>
+    </section>
   </div>
 
   <footer>
@@ -726,7 +791,228 @@ function renderBoard() {
   if (B().n_known > 0) { renderDetail(es); renderSpag(es); renderHeat(es); renderCurve(es); }
   renderMonth(es);
 }
-function resizeAll() { [chartMain, chartHist, chartSpag, chartDetail, chartHeat, chartCurve, chartMonth].forEach(c => c && c.resize()); }
+
+/* ================= forecast replay ================= */
+const REPLAY_URL = 'replay.json';
+let RP = null, rpIdx = 0, rpView = 'all', rpSel = null, rpTimer = null;
+let chartRpDays, chartRpForest, chartRpOver, chartRpWidth;
+const dayDiff = (a, b) => Math.round((new Date(b + 'T12:00:00Z') - new Date(a + 'T12:00:00Z')) / 864e5);
+const rpGroupColour = g => {
+  if (!colourOf[g.group]) {
+    if (g.benchmark) colourOf[g.group] = '#8b9cbc';
+    else { const i = RP.groups.filter(x => !x.benchmark).findIndex(x => x.group === g.group); colourOf[g.group] = `hsl(${Math.round((i * 137.508) % 360)} 72% 64%)`; }
+  }
+  return colourOf[g.group];
+};
+const rpOrigin = () => RP.origins[rpIdx];
+const rpPriceMap = () => Object.fromEntries(data.prices.map(r => [r.d, r.p]));
+function rpFinal() {                // the final October average, once all 31 prices are known
+  const pm = rpPriceMap(); let sum = 0;
+  for (let i = 0; i < data.month.n_days; i++) { const v = pm[addDays(data.month_start, i)]; if (v == null) return null; sum += v; }
+  return sum / data.month.n_days;
+}
+function rpEntries(o) {
+  return RP.groups.map(g => {
+    const f = g.fits[o]; if (!f) return null;
+    const m = f.month;
+    return { g, f, mean: m[0], q05: m[5], q25: m[25], med: m[50], q75: m[75], q95: m[95], sub: (g.submitted && g.submitted.month) ? g.submitted.month[3] : null };
+  }).filter(Boolean);
+}
+function rpSetup() {
+  const o = RP.origins;
+  $('rp-range').max = o.length - 1;
+  $('rp-end-a').textContent = dShort(o[0]); $('rp-end-b').textContent = dShort(o[o.length - 1]);
+  const sel = $('rp-group');
+  sel.innerHTML = RP.groups.filter(g => !g.benchmark).map(g => `<option value="${esc(g.group)}">${esc(g.display)}</option>`).join('') +
+    RP.groups.filter(g => g.benchmark).map(g => `<option value="${esc(g.group)}">${esc(g.display)}</option>`).join('');
+  rpSel = rpSel || RP.groups.find(g => !g.benchmark).group;
+  sel.value = rpSel;
+  rpIdx = o.length - 1;                               // start at the latest date
+  $('rp-range').value = rpIdx;
+}
+function rpRender() {
+  if (!RP || !data) return;
+  const o = rpOrigin(), es = rpEntries(o), fin = rpFinal();
+  const k = es.length ? es[0].f.k : 0, n = data.month.n_days;
+  $('rp-date').textContent = k === 0 ? 'Before October starts' : 'Prices known through ' + dayLabel(o);
+  const known = k > 0 ? (() => { const pm = rpPriceMap(); let s = 0; for (let i = 0; i < k; i++) s += pm[addDays(data.month_start, i)] || 0; return s / k; })() : null;
+  $('rp-info').textContent = `${k} of ${n} days known · ${n - k} to forecast` + (known != null ? ` · average of the known days ${fmt(known)}` : '') +
+    (fin != null ? ` · final average ${fmt(fin)}` : '');
+  $('rp-group').disabled = rpView !== 'one' && false;
+  document.querySelectorAll('#rp-view button').forEach(b => b.classList.toggle('on', b.dataset.v === rpView));
+  rpDays(o, es); rpForest(o, es, fin); rpOver(o, es, fin); rpWidth(o, es); rpTable(o, es, fin);
+}
+
+function rpDays(o, es) {
+  const n = data.month.n_days, days = Array.from({ length: n }, (_, i) => addDays(data.month_start, i));
+  const cats = days.map(dShort), pm = rpPriceMap();
+  const knownS = days.map(d => (d <= o && pm[d] != null) ? pm[d] : null);
+  const laterS = days.map(d => (d >= o && pm[d] != null) ? pm[d] : null);
+  const markDay = (o >= data.month_start && o < days[n - 1]) ? { symbol: 'none', silent: true, label: { formatter: 'forecast made', color: '#8b9cbc', fontSize: 11 }, lineStyle: { color: 'rgba(255,255,255,.35)', type: 'dashed' }, data: [{ xAxis: dShort(o) }] } : undefined;
+  const series = [
+    { name: 'Known price', type: 'line', data: knownS, showSymbol: true, symbolSize: 5, lineStyle: { color: C.after, width: 2.6 }, itemStyle: { color: C.after }, z: 6, markLine: markDay },
+    { name: 'What happened later', type: 'line', data: laterS, showSymbol: false, lineStyle: { color: C.after, width: 1.8, type: 'dotted', opacity: .75 }, z: 5 }
+  ];
+  const at = (e, d, c) => { const j = dayDiff(o, d) - 1; return (j >= 0 && j < e.f.day.length) ? e.f.day[j][c] : null; };
+  const one = rpView === 'one' ? (es.find(e => e.g.group === rpSel) || es[0]) : null;
+  if (one) {
+    const col = rpGroupColour(one.g);
+    const arr = c => days.map(d => at(one, d, c));
+    const lo90 = arr(1), hi90 = arr(5), lo50 = arr(2), hi50 = arr(4);
+    const diff = (a, b) => a.map((v, i) => (v == null || b[i] == null) ? null : b[i] - v);
+    series.push(
+      { name: 'b90', type: 'line', data: lo90, stack: 's90', symbol: 'none', lineStyle: { opacity: 0 }, silent: true, z: 1 },
+      { name: '90% interval', type: 'line', data: diff(lo90, hi90), stack: 's90', symbol: 'none', lineStyle: { opacity: 0 }, areaStyle: { color: col, opacity: .18 }, silent: true, z: 1 },
+      { name: 'b50', type: 'line', data: lo50, stack: 's50', symbol: 'none', lineStyle: { opacity: 0 }, silent: true, z: 2 },
+      { name: '50% interval', type: 'line', data: diff(lo50, hi50), stack: 's50', symbol: 'none', lineStyle: { opacity: 0 }, areaStyle: { color: col, opacity: .32 }, silent: true, z: 2 },
+      { name: 'Forecast (mean)', type: 'line', data: arr(0), showSymbol: false, lineStyle: { color: col, width: 2.6 }, z: 4 });
+    $('rp-days-title').textContent = 'Daily prices: ' + one.g.display;
+  } else {
+    es.forEach(e => {
+      const sel = e.g.group === rpSel, col = rpGroupColour(e.g);
+      series.push({ name: e.g.display, type: 'line', data: days.map(d => at(e, d, 0)), showSymbol: false, z: sel ? 5 : 3,
+        lineStyle: { color: col, width: sel ? 3.2 : 1.4, opacity: sel || !rpSel ? .95 : .35, type: e.g.benchmark ? 'dashed' : 'solid' },
+        emphasis: { focus: 'series', lineStyle: { width: 3 } } });
+    });
+    $('rp-days-title').textContent = 'Daily prices: what is known and what is forecast';
+  }
+  const leg = [`<span><i style="background:var(--after)"></i>Known price</span>`, `<span><i class="dash" style="border-color:var(--after)"></i>What happened later</span>`];
+  leg.push(one ? `<span><i style="background:${rpGroupColour(one.g)}"></i>Forecast mean</span><span><i class="band" style="background:${rpGroupColour(one.g)}"></i>50% and 90% intervals</span>` :
+    `<span><i style="background:#8b9cbc"></i>Mean forecast of each group (click a row below or a dot to highlight one)</span>`);
+  $('rp-days-legend').innerHTML = leg.join('');
+  chartRpDays.setOption({
+    animation: false, grid: { left: 46, right: 18, top: 24, bottom: 36 },
+    tooltip: { trigger: one ? 'axis' : 'item', confine: true, backgroundColor: 'rgba(10,18,36,.95)', borderColor: 'rgba(255,255,255,.15)', textStyle: { color: '#e8eefb', fontSize: 12 },
+      valueFormatter: v => v == null ? '–' : fmt(v) },
+    xAxis: { type: 'category', data: cats, boundaryGap: false, axisLabel: { color: C.text, interval: NARROW() ? 4 : 1, fontSize: 11 }, axisLine: { lineStyle: { color: C.grid } } },
+    yAxis: { type: 'value', scale: true, name: 'NOK/kWh', nameTextStyle: { color: C.text, align: 'left' }, axisLabel: { color: C.text, formatter: v => v.toFixed(1) }, splitLine: { lineStyle: { color: C.grid } } },
+    series
+  }, true);
+  chartRpDays.off('click'); chartRpDays.on('click', p => { const g = RP.groups.find(x => x.display === p.seriesName); if (g) rpSelect(g.group); });
+}
+
+function rpForest(o, es, fin) {
+  const rows = [...es].sort((a, b) => a.med - b.med);              // highest at the top of the chart
+  const names = rows.map(e => e.g.display);
+  const data_ = rows.map((e, i) => ({ value: [i, e.q05, e.q25, e.med, e.q75, e.q95], colour: rpGroupColour(e.g), sel: e.g.group === rpSel }));
+  const sub = rows.map((e, i) => e.sub == null ? null : [e.sub, names[i]]).filter(Boolean);
+  const mn = Math.min(...RP.groups.flatMap(g => Object.values(g.fits).map(f => f.month[5])));
+  const mx = Math.max(...RP.groups.flatMap(g => Object.values(g.fits).map(f => f.month[95])));
+  chartRpForest.setOption({
+    animation: false, grid: { left: NARROW() ? 120 : 150, right: 20, top: 14, bottom: 34 },
+    tooltip: { trigger: 'item', confine: true, backgroundColor: 'rgba(10,18,36,.95)', borderColor: 'rgba(255,255,255,.15)', textStyle: { color: '#e8eefb', fontSize: 12 },
+      formatter: p => { if (p.seriesType === 'scatter') return `${esc(p.value[1])}<br>Official submission: <b>${fmt(p.value[0], 3)}</b>`;
+        const v = p.data.value; return `<b>${esc(names[v[0]])}</b><br>Median ${fmt(v[3], 3)}<br>50%: ${fmt(v[2], 3)} – ${fmt(v[4], 3)}<br>90%: ${fmt(v[1], 3)} – ${fmt(v[5], 3)}`; } },
+    xAxis: { type: 'value', min: Math.floor(mn * 5) / 5, max: Math.ceil(mx * 5) / 5, interval: 0.2, axisLabel: { color: C.text, formatter: v => v.toFixed(1) }, splitLine: { lineStyle: { color: C.grid } } },
+    yAxis: { type: 'category', data: names, axisLabel: { color: v => (RP.groups.find(g => g.display === v) || {}).group === rpSel ? '#fff' : C.text, fontSize: 12, width: NARROW() ? 108 : 138, overflow: 'truncate' }, axisLine: { lineStyle: { color: C.grid } }, axisTick: { show: false } },
+    series: [
+      { type: 'custom', z: 3, data: data_, encode: { x: [1, 2, 3, 4, 5], y: 0 },
+        renderItem: (params, api) => {
+          const it = data_[params.dataIndex], i = api.value(0), pt = k => api.coord([api.value(k), i]);
+          const [x05, y] = pt(1), x25 = pt(2)[0], x50 = pt(3)[0], x75 = pt(4)[0], x95 = pt(5)[0], h = Math.min(api.size([0, 1])[1] * 0.55, 18);
+          return { type: 'group', children: [
+            { type: 'line', shape: { x1: x05, y1: y, x2: x95, y2: y }, style: { stroke: it.colour, lineWidth: 2, opacity: it.sel ? 1 : .6 } },
+            { type: 'rect', shape: { x: x25, y: y - h / 2, width: Math.max(x75 - x25, 1.5), height: h }, style: { fill: it.colour, opacity: it.sel ? .85 : .5 } },
+            { type: 'circle', shape: { cx: x50, cy: y, r: it.sel ? 5.5 : 4 }, style: { fill: '#fff' } }] };
+        } },
+      { type: 'scatter', data: sub, symbol: 'diamond', symbolSize: 10, itemStyle: { color: C.warn, borderColor: '#0d1b33', borderWidth: 1 }, z: 4 },
+      { type: 'line', data: [], markLine: fin == null ? undefined : { silent: true, symbol: 'none', lineStyle: { color: C.avg, type: 'dashed', width: 2 }, label: { formatter: 'final ' + fmt(fin, 3), color: C.avg, position: 'insideEndTop', fontSize: 11 }, data: [{ xAxis: fin }] } }
+    ]
+  }, true);
+  chartRpForest.off('click'); chartRpForest.on('click', p => { if (p.componentType === 'yAxis') { const g = RP.groups.find(x => x.display === p.value); if (g) rpSelect(g.group); } else if (p.data && p.data.value) { const g = RP.groups.find(x => x.display === names[p.data.value[0]]); if (g) rpSelect(g.group); } });
+}
+
+function rpOver(o, es, fin) {
+  const cats = RP.origins.map(dShort), cur = dShort(o);
+  const mk = { symbol: 'none', silent: true, label: { show: false }, lineStyle: { color: 'rgba(255,255,255,.5)', type: 'dashed' }, data: [{ xAxis: cur }] };
+  const series = [];
+  if (rpView === 'one') {
+    const g = RP.groups.find(x => x.group === rpSel) || RP.groups[0], col = rpGroupColour(g);
+    const m = RP.origins.map(d => g.fits[d] ? g.fits[d].month : null);
+    const at = i => m.map(x => x ? x[i] : null);
+    const lo = at(5), hi = at(95), l50 = at(25), h50 = at(75);
+    const diff = (a, b) => a.map((v, i) => v == null ? null : b[i] - v);
+    series.push(
+      { name: 'b90', type: 'line', data: lo, stack: 'a', symbol: 'none', lineStyle: { opacity: 0 }, silent: true },
+      { name: '90%', type: 'line', data: diff(lo, hi), stack: 'a', symbol: 'none', lineStyle: { opacity: 0 }, areaStyle: { color: col, opacity: .18 }, silent: true },
+      { name: 'b50', type: 'line', data: l50, stack: 'b', symbol: 'none', lineStyle: { opacity: 0 }, silent: true },
+      { name: '50%', type: 'line', data: diff(l50, h50), stack: 'b', symbol: 'none', lineStyle: { opacity: 0 }, areaStyle: { color: col, opacity: .32 }, silent: true },
+      { name: 'Median', type: 'line', data: at(50), showSymbol: false, lineStyle: { color: col, width: 2.6 }, markLine: mk });
+  } else {
+    RP.groups.forEach((g, gi) => {
+      const sel = g.group === rpSel, col = rpGroupColour(g);
+      series.push({ name: g.display, type: 'line', data: RP.origins.map(d => g.fits[d] ? g.fits[d].month[50] : null), showSymbol: false,
+        lineStyle: { color: col, width: sel ? 3.2 : 1.3, opacity: sel || !rpSel ? .9 : .3, type: g.benchmark ? 'dashed' : 'solid' }, z: sel ? 5 : 3,
+        markLine: gi === 0 ? mk : undefined, emphasis: { focus: 'series' } });
+    });
+  }
+  if (fin != null) series.push({ name: 'Final', type: 'line', data: [], markLine: { silent: true, symbol: 'none', lineStyle: { color: C.avg, type: 'dashed' }, label: { formatter: 'final', color: C.avg, fontSize: 11, position: 'insideEndTop' }, data: [{ yAxis: fin }] } });
+  chartRpOver.setOption({
+    animation: false, grid: { left: 50, right: 18, top: 16, bottom: 34 },
+    tooltip: { trigger: rpView === 'one' ? 'axis' : 'item', confine: true, backgroundColor: 'rgba(10,18,36,.95)', borderColor: 'rgba(255,255,255,.15)', textStyle: { color: '#e8eefb', fontSize: 12 }, valueFormatter: v => v == null ? '–' : fmt(v, 3) },
+    xAxis: { type: 'category', data: cats, boundaryGap: false, axisLabel: { color: C.text, interval: NARROW() ? 6 : 3, fontSize: 11 }, axisLine: { lineStyle: { color: C.grid } } },
+    yAxis: { type: 'value', scale: true, axisLabel: { color: C.text, formatter: v => v.toFixed(2) }, splitLine: { lineStyle: { color: C.grid } } },
+    series
+  }, true);
+}
+
+function rpWidth(o, es) {
+  const cats = RP.origins.map(dShort), cur = dShort(o);
+  const mk = { symbol: 'none', silent: true, label: { show: false }, lineStyle: { color: 'rgba(255,255,255,.5)', type: 'dashed' }, data: [{ xAxis: cur }] };
+  const series = RP.groups.map((g, gi) => {
+    const sel = g.group === rpSel, col = rpGroupColour(g);
+    return { name: g.display, type: 'line', data: RP.origins.map(d => g.fits[d] ? g.fits[d].month[95] - g.fits[d].month[5] : null), showSymbol: false, z: sel ? 5 : 3,
+      lineStyle: { color: col, width: sel ? 3.2 : 1.3, opacity: sel || !rpSel ? .9 : .3, type: g.benchmark ? 'dashed' : 'solid' }, markLine: gi === 0 ? mk : undefined, emphasis: { focus: 'series' } };
+  });
+  chartRpWidth.setOption({
+    animation: false, grid: { left: 50, right: 18, top: 16, bottom: 34 },
+    tooltip: { trigger: 'item', confine: true, backgroundColor: 'rgba(10,18,36,.95)', borderColor: 'rgba(255,255,255,.15)', textStyle: { color: '#e8eefb', fontSize: 12 }, valueFormatter: v => v == null ? '–' : fmt(v, 3) },
+    xAxis: { type: 'category', data: cats, boundaryGap: false, axisLabel: { color: C.text, interval: NARROW() ? 6 : 3, fontSize: 11 }, axisLine: { lineStyle: { color: C.grid } } },
+    yAxis: { type: 'value', min: 0, name: 'NOK/kWh', nameTextStyle: { color: C.text, align: 'left' }, axisLabel: { color: C.text, formatter: v => v.toFixed(2) }, splitLine: { lineStyle: { color: C.grid } } },
+    series
+  }, true);
+}
+
+function rpTable(o, es, fin) {
+  const rows = [...es].sort((a, b) => (a.g.benchmark - b.g.benchmark) || a.g.display.localeCompare(b.g.display));
+  const hasSub = rows.some(r => r.sub != null);
+  const head = `<tr><th class="l">Group</th><th>Median</th><th>90% interval</th><th>Width</th>${fin != null ? '<th>Error vs final</th>' : ''}${hasSub ? '<th>Official (22 Oct)</th>' : ''}</tr>`;
+  const body = rows.map(e => {
+    const err = fin != null ? e.med - fin : null;
+    return `<tr class="row ${e.g.benchmark ? 'bench' : ''} ${e.g.group === rpSel ? 'sel' : ''}" data-g="${esc(e.g.group)}">
+      <td class="l"><span class="gname"><span class="dot" style="background:${rpGroupColour(e.g)}"></span>${esc(e.g.display)}</span></td>
+      <td>${fmt(e.med, 3)}</td><td>${fmt(e.q05, 3)} – ${fmt(e.q95, 3)}</td><td>${fmt(e.q95 - e.q05, 3)}</td>
+      ${fin != null ? `<td class="${err > 0 ? 'pos' : 'neg'}">${signed(err, 3)}</td>` : ''}${hasSub ? `<td>${e.sub == null ? '–' : fmt(e.sub, 3)}</td>` : ''}</tr>`;
+  }).join('');
+  $('rp-table').innerHTML = head + body;
+  $('rp-table').querySelectorAll('tr.row').forEach(tr => tr.onclick = () => rpSelect(tr.dataset.g));
+  $('rp-note').textContent = fin == null
+    ? 'The error against the final October average is shown when the last price of the month is known.'
+    : 'Error = median forecast of the October average minus the final average (positive: too high).';
+}
+function rpSelect(group) { rpSel = group; $('rp-group').value = group; rpRender(); }
+function rpGo(i) { rpIdx = Math.max(0, Math.min(RP.origins.length - 1, i)); $('rp-range').value = rpIdx; rpRender(); }
+function rpStop() { if (rpTimer) { clearInterval(rpTimer); rpTimer = null; } $('rp-play').textContent = '▶'; }
+function rpPlay() {
+  if (rpTimer) return rpStop();
+  if (rpIdx >= RP.origins.length - 1) rpGo(0);
+  $('rp-play').textContent = '❚❚';
+  rpTimer = setInterval(() => { if (rpIdx >= RP.origins.length - 1) return rpStop(); rpGo(rpIdx + 1); }, 750);
+}
+async function loadReplay() {
+  try {
+    const r = await fetch(REPLAY_URL + '?t=' + Math.floor(Date.now() / 600000), { cache: 'no-store' });
+    RP = await r.json(); rpSetup(); rpRender();
+  } catch (e) { RP = null; }
+}
+$('rp-range').oninput = e => { rpStop(); rpGo(+e.target.value); };
+$('rp-prev').onclick = () => { rpStop(); rpGo(rpIdx - 1); };
+$('rp-next').onclick = () => { rpStop(); rpGo(rpIdx + 1); };
+$('rp-play').onclick = rpPlay;
+$('rp-group').onchange = e => { rpSel = e.target.value; rpRender(); };
+document.querySelectorAll('#rp-view button').forEach(b => b.onclick = () => { rpView = b.dataset.v; rpRender(); });
+
+function resizeAll() { [chartMain, chartHist, chartSpag, chartDetail, chartHeat, chartCurve, chartMonth, chartRpDays, chartRpForest, chartRpOver, chartRpWidth].forEach(c => c && c.resize()); }
 
 document.querySelectorAll('#seg button').forEach(bt => bt.onclick = () => { mode = bt.dataset.m; selSid = null; renderBoard(); });
 function showTab(t) {
@@ -802,6 +1088,7 @@ async function load() {
     data = d;
     await topUpPrices(); if (data.board) rescoreAll();
     render();
+    if (!RP) await loadReplay(); else rpRender();
     if (changed) toast('New prices are in: ' + dayLabel(data.last_day));
     lastDayShown = data.last_day;
   } catch (e) { $('updated').textContent = 'Could not load data'; $('pulse').classList.add('stale'); }
@@ -813,8 +1100,13 @@ chartDetail = echarts.init($('chart-detail'), null, { renderer: 'canvas' });
 chartHeat = echarts.init($('chart-heat'), null, { renderer: 'canvas' });
 chartCurve = echarts.init($('chart-curve'), null, { renderer: 'canvas' });
 chartMonth = echarts.init($('chart-month'), null, { renderer: 'canvas' });
-if (location.hash === '#prices') showTab('prices');
-window.addEventListener('hashchange', () => showTab(location.hash === '#prices' ? 'prices' : 'score'));
+chartRpDays = echarts.init($('chart-rp-days'), null, { renderer: 'canvas' });
+chartRpForest = echarts.init($('chart-rp-forest'), null, { renderer: 'canvas' });
+chartRpOver = echarts.init($('chart-rp-over'), null, { renderer: 'canvas' });
+chartRpWidth = echarts.init($('chart-rp-width'), null, { renderer: 'canvas' });
+const tabFromHash = () => ['prices', 'replay'].includes(location.hash.slice(1)) ? location.hash.slice(1) : 'score';
+if (tabFromHash() !== 'score') showTab(tabFromHash());
+window.addEventListener('hashchange', () => showTab(tabFromHash()));
 window.addEventListener('resize', resizeAll);
 load();
 setInterval(load, REFRESH_MS); setInterval(tick, 1000);
